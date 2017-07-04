@@ -1,6 +1,14 @@
 package gorest
 
 import "net/http"
+import (
+	"encoding/json"
+	"log"
+	"encoding/xml"
+	"io"
+	"os"
+	"bufio"
+)
 
 type HttpRequest struct {
 	*http.Request
@@ -19,14 +27,31 @@ func newHttpResponse(r http.ResponseWriter) HttpResponse{
 	return HttpResponse{r}
 }
 
-func (response *HttpResponse) WriteJson(json interface{}) {
-
+func (response *HttpResponse) WriteJson(jsonObj interface{}) {
+	b,err:=json.Marshal(jsonObj)
+	if err!=nil {
+		log.Println(err)
+	}
+	response.Header().Set("Content-Type","application/json")
+	response.Write(b)
 }
 
-func (response *HttpResponse) WriteXml(xml interface{}) {
-
+func (response *HttpResponse) WriteXml(xmlObj interface{}) {
+	b,err:=xml.Marshal(xmlObj)
+	if err!=nil {
+		log.Println(err)
+	}
+	response.Header().Set("Content-Type","application/json")
+	response.Write(b)
 }
 
-func (response *HttpResponse) WriteFile(file interface{}) {
-
+func (response *HttpResponse) WriteFile(filepath string) {
+	response.Header().Set("Content-Type","application/octet-stream")
+    f,err:= os.Open(filepath)
+	if err!=nil {
+		log.Println(err)
+	}
+	defer f.Close()
+	r:= bufio.NewReader(f)
+	io.Copy(response,r)
 }

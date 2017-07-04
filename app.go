@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"fmt"
 )
 
 
@@ -59,6 +60,7 @@ func (a *App) Put(pattern string, handler func(r *HttpRequest,w HttpResponse))  
 }
 
 func(a *App) Run(address string) error{
+	fmt.Printf("Server listens on %s",address)
 	err:=http.ListenAndServe(address,&hodler{app:a})
 	if err!=nil{
 		return err
