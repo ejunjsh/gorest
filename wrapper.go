@@ -32,7 +32,6 @@ func (response *HttpResponse) WriteJson(jsonObj interface{}) {
 	if err!=nil {
 		log.Println(err)
 	}
-	response.Header().Set("Content-Type","application/json")
 	response.Write(b)
 }
 
@@ -41,12 +40,10 @@ func (response *HttpResponse) WriteXml(xmlObj interface{}) {
 	if err!=nil {
 		log.Println(err)
 	}
-	response.Header().Set("Content-Type","application/json")
 	response.Write(b)
 }
 
 func (response *HttpResponse) WriteFile(filepath string) {
-	response.Header().Set("Content-Type","application/octet-stream")
     f,err:= os.Open(filepath)
 	if err!=nil {
 		log.Println(err)
