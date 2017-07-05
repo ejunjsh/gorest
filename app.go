@@ -10,11 +10,12 @@ import (
 
 
 type App struct {
-	handlers map[string]func(r *HttpRequest,w HttpResponse)
+	handlers map[string]func(r *HttpRequest,w HttpResponse)error
 	patterns []string
 	methods map[string]string
 	regexps map[string]*regexp.Regexp
 	pathparamanmes map[string][]string
+	errHandler func( err error, r *HttpRequest,w HttpResponse)
 }
 
 type hodler struct {
@@ -23,7 +24,7 @@ type hodler struct {
 
 func NewApp() *App {
 	return &App{
-		handlers: make(map[string]func(r *HttpRequest,w HttpResponse)),
+		handlers: make(map[string]func(r *HttpRequest,w HttpResponse)error),
 		patterns:make([]string,0),
 		methods:make(map[string]string),
 		regexps:make(map[string]*regexp.Regexp),
@@ -31,7 +32,7 @@ func NewApp() *App {
 	}
 }
 
-func(a *App) handle(method string,pattern string, handler func(r *HttpRequest,w HttpResponse)){
+func(a *App) handle(method string,pattern string, handler func(r *HttpRequest,w HttpResponse) error){
 	a.handlers[pattern]=handler
 	a.methods[pattern]=method
 	a.regexps[pattern],a.pathparamanmes[pattern]=convertPatterntoRegex(pattern)
@@ -43,20 +44,24 @@ func(a *App) handle(method string,pattern string, handler func(r *HttpRequest,w 
 	a.patterns=append(a.patterns,pattern)
 }
 
-func (a *App) Get(pattern string, handler func(r *HttpRequest,w HttpResponse))  {
+func (a *App) Get(pattern string, handler func(r *HttpRequest,w HttpResponse)error)  {
 	a.handle("GET",pattern,handler)
 }
 
-func (a *App) Post(pattern string, handler func(r *HttpRequest,w HttpResponse))  {
+func (a *App) Post(pattern string, handler func(r *HttpRequest,w HttpResponse)error)  {
 	a.handle("POST",pattern,handler)
 }
 
-func (a *App) Delete(pattern string, handler func(r *HttpRequest,w HttpResponse))  {
+func (a *App) Delete(pattern string, handler func(r *HttpRequest,w HttpResponse)error)  {
 	a.handle("DELETE",pattern,handler)
 }
 
-func (a *App) Put(pattern string, handler func(r *HttpRequest,w HttpResponse))  {
+func (a *App) Put(pattern string, handler func(r *HttpRequest,w HttpResponse) error)  {
 	a.handle("PUT",pattern,handler)
+}
+
+func (a *App) Error(handler func(err error,r *HttpRequest,w HttpResponse))  {
+	a.errHandler=handler
 }
 
 func(a *App) Run(address string) error{
@@ -69,6 +74,7 @@ func(a *App) Run(address string) error{
 }
 
 func(a *App) RunTls(address string,cert string,key string) error{
+	fmt.Printf("Server listens on %s",address)
 	err:=http.ListenAndServeTLS(address,cert,key,&hodler{app:a})
 	if err!=nil{
 		return err
@@ -77,6 +83,14 @@ func(a *App) RunTls(address string,cert string,key string) error{
 }
 
 func (h *hodler) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	request:= newHttpRequest(r)
+	response:=newHttpResponse(w)
+	defer func() {
+		if err:=recover();err!=nil{
+			e:=err.(error)
+			h.app.errHandler(InternalError{e,""},request,response)
+		}
+	}()
    for _,p:=range h.app.patterns{
        if reg,ok:= h.app.regexps[p];ok{
 		   if method,ok:=h.app.methods[p];ok&&r.Method==method{
@@ -90,18 +104,23 @@ func (h *hodler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 						   }
 					   }
 				   }
-
-				   request:= newHttpRequest(r)
 				   request.PathParams=pathParamMap
-				   response:=newHttpResponse(w)
 				   if handler,ok:=h.app.handlers[p];ok{
-					   handler(request,response)
+					   err:=handler(request,response)
+					   if err!=nil{
+						   h.app.errHandler(err,request,response)
+					   }
+					   return
 				   }
 			   }
 		   }
 	   }
    }
+	h.app.errHandler(NoFoundError{},request,response)
 }
+
+
+
 
 func convertPatterntoRegex(pattern string) (*regexp.Regexp,[]string) {
 	b:=regexp.MustCompile(`:[a-zA-Z1-9]+`).ReplaceAll([]byte(pattern),[]byte(`([a-zA-Z1-9]+)`))
