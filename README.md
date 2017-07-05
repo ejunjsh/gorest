@@ -11,7 +11,7 @@ go get github.com/ejunjsh/gorest
 ````
 import "github.com/ejunjsh/gorest"
 ````
-### create a app,run a server
+### create a app and run a server
 ````go
 app:=gorest.NewApp()
 app.[Get/Post/Delete/Put/Error]
