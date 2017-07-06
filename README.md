@@ -1,6 +1,8 @@
 # gorest
 [![Build Status](https://travis-ci.org/ejunjsh/gorest.svg?branch=master)](https://travis-ci.org/ejunjsh/gorest)
 
+[![baby-gopher](https://raw.githubusercontent.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
+
 a restful go framework
 ## install
 ````go
