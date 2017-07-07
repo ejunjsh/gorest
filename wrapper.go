@@ -3,11 +3,11 @@ package gorest
 import "net/http"
 import (
 	"encoding/json"
-	"log"
 	"encoding/xml"
 	"io"
 	"os"
 	"bufio"
+	"html/template"
 )
 
 type HttpRequest struct {
@@ -27,28 +27,44 @@ func newHttpResponse(r http.ResponseWriter) HttpResponse{
 	return HttpResponse{r}
 }
 
-func (response *HttpResponse) WriteJson(jsonObj interface{}) {
+func (response *HttpResponse) WriteJson(jsonObj interface{}) error {
 	b,err:=json.Marshal(jsonObj)
 	if err!=nil {
-		log.Println(err)
+		return err
 	}
 	response.Write(b)
+	return nil
 }
 
-func (response *HttpResponse) WriteXml(xmlObj interface{}) {
+func (response *HttpResponse) WriteXml(xmlObj interface{}) error {
 	b,err:=xml.Marshal(xmlObj)
 	if err!=nil {
-		log.Println(err)
+		return err
 	}
 	response.Write(b)
+	return nil
 }
 
-func (response *HttpResponse) WriteFile(filepath string) {
+func (response *HttpResponse) WriteFile(filepath string) error {
     f,err:= os.Open(filepath)
 	if err!=nil {
-		log.Println(err)
+		return err
 	}
 	defer f.Close()
 	r:= bufio.NewReader(f)
 	io.Copy(response,r)
+	return nil
+}
+
+func (response *HttpResponse) WriteTemplates(data interface{},tplPath ...string) error  {
+	t, err := template.ParseFiles(tplPath...)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(response, data)
+	if err != nil {
+		return err
+	}
+	return nil
 }

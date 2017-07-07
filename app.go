@@ -87,8 +87,12 @@ func (h *hodler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 	response:=newHttpResponse(w)
 	defer func() {
 		if err:=recover();err!=nil{
-			e:=err.(error)
-			h.app.errHandler(InternalError{e,""},request,response)
+			if e,ok:=err.(error);ok{
+				h.app.errHandler(InternalError{e,""},request,response)
+			}
+			if e,ok:=err.(string);ok{
+				h.app.errHandler(InternalError{nil,e},request,response)
+			}
 		}
 	}()
    for _,p:=range h.app.patterns{

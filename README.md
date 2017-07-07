@@ -21,23 +21,25 @@ app.Run(":8081")
 ````
 ### supports 4 methods of http request
 ````go
-app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) {...})
-app.Post("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) {...})
-app.Delete("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) {...})
-app.Put("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) {...})
+app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {...})
+app.Post("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {...})
+app.Delete("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {...})
+app.Put("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {...})
 ````
 ### supports parameters from url path
 ````go
-app.Get("/:abc/:cba", func(r *gorest.HttpRequest, w gorest.HttpResponse) {
+app.Get("/:abc/:cba", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
 		fmt.Println(w.PathParams["abc"],w.PathParams["cba"])
+		return nil
 })
 ````
-### supports json,xml,file as result of return
+### supports json,xml,file,template as result of return
 ````go
-app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) {
-          w.WriteJson(jsonObj)
-        //w.WriteXml(xmlObj)
-        //w.WriteFile("/Users/zhouff/file.txt")
+app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
+        return  w.WriteJson(jsonObj)
+                //w.WriteXml(xmlObj)
+                //w.WriteFile("/Users/zhouff/file.txt")
+                //w.WriteTemplates(data,"/Users/zhouff/index.html","/Users/zhouff/header.html")
 })
 ````
 ### supports dealing with errors

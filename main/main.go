@@ -11,8 +11,7 @@ func main(){
 			Abc string `json:"abc"`
 			Cba string `json:"cba"`
 		}{"123","321"}
-		w.WriteJson(a)
-		return  nil
+		return w.WriteJson(a)
 	})
 
 
