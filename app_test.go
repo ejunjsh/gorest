@@ -11,8 +11,13 @@ import (
 func TestApp_Get(t *testing.T) {
 	expect:="hello world"
 	a:=NewApp()
+
 	a.Get("/helloworld/:abc/op/:bca", func(r *HttpRequest, w HttpResponse) error {
 		w.Write([]byte(expect+r.PathParams["abc"]+r.PathParams["bca"]))
+		return nil
+	})
+	a.Get("/helloworld/:abc/", func(r *HttpRequest, w HttpResponse) error {
+		w.Write([]byte(expect+r.PathParams["abc"]))
 		return nil
 	})
 	go a.Run(":8080")

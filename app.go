@@ -131,13 +131,13 @@ func (h *hodler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 
 func convertPatterntoRegex(pattern string) (*regexp.Regexp,[]string) {
 	b:=regexp.MustCompile(`:[a-zA-Z1-9]+`).ReplaceAll([]byte(pattern),[]byte(`([a-zA-Z1-9]+)`))
-	if strings.LastIndex(string(b),"/")>0{
+	if strings.HasSuffix(string(b),"/"){
 		b=append(b,byte('?'))
 	}else {
 		b=append(b,byte('/'))
 		b=append(b,byte('?'))
 	}
-	reg:= regexp.MustCompile(string(b))
+	reg:= regexp.MustCompile("^"+string(b)+"$")
 	b1:=regexp.MustCompile(`:[a-zA-Z1-9]+`).ReplaceAll([]byte(pattern),[]byte(`:([a-zA-Z1-9]+)`))
 	reg1:= regexp.MustCompile(string(b1))
 	matchers:=reg1.FindSubmatch([]byte(pattern))
