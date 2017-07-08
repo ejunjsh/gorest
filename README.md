@@ -5,12 +5,12 @@
 
 a restful go framework
 ## install
-````go
+````bash
 go get github.com/ejunjsh/gorest
 ````
 ## usage
 ### import
-````
+````go
 import "github.com/ejunjsh/gorest"
 ````
 ### create a app and run a server
@@ -33,7 +33,7 @@ app.Get("/:abc/:cba", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
 		return nil
 })
 ````
-### supports json,xml,file,template as result of return
+### supports string,json,xml,file,template as result of return
 ````go
 app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
         return  w.WriteJson(jsonObj)
