@@ -29,6 +29,9 @@ func NewApp() *App {
 		methods:make(map[string]string),
 		regexps:make(map[string]*regexp.Regexp),
 		pathparamanmes:make(map[string][]string),
+		errHandler: func(err error, r *HttpRequest, w HttpResponse) {
+			w.Write( []byte(err.Error()))
+		},
 	}
 }
 

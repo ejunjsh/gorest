@@ -37,6 +37,7 @@ app.Get("/:abc/:cba", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
 ````go
 app.Get("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
         return  w.WriteJson(jsonObj)
+                //w.WriteString(str)
                 //w.WriteXml(xmlObj)
                 //w.WriteFile("/Users/zhouff/file.txt")
                 //w.WriteTemplates(data,"/Users/zhouff/index.html","/Users/zhouff/header.html")

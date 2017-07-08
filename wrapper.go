@@ -27,6 +27,11 @@ func newHttpResponse(r http.ResponseWriter) HttpResponse{
 	return HttpResponse{r}
 }
 
+func (response *HttpResponse) WriteString(str string) error {
+	_,err:=response.Write([]byte(str))
+	return err
+}
+
 func (response *HttpResponse) WriteJson(jsonObj interface{}) error {
 	b,err:=json.Marshal(jsonObj)
 	if err!=nil {
