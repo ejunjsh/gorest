@@ -28,7 +28,7 @@ func newHttpResponse(r http.ResponseWriter) HttpResponse{
 }
 
 func (response *HttpResponse) WriteString(str string) error {
-	_,err:=response.Write([]byte(str))
+	_,err:=io.WriteString(response,str)
 	return err
 }
 
