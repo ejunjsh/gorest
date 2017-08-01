@@ -29,7 +29,7 @@ app.Put("/", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {...})
 ### supports parameters from url path
 ````go
 app.Get("/:abc/:cba", func(r *gorest.HttpRequest, w gorest.HttpResponse) error {
-		fmt.Println(w.PathParams["abc"],w.PathParams["cba"])
+		fmt.Println(r.PathParams["abc"],r.PathParams["cba"])
 		return nil
 })
 ````
