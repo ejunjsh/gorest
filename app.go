@@ -12,7 +12,7 @@ import (
 type App struct {
 	handlers map[string]func(r *HttpRequest,w HttpResponse)error
 	patterns []string
-	methods map[string]string
+	methods map[string]map[string]string
 	regexps map[string]*regexp.Regexp
 	pathparamanmes map[string][]string
 	errHandler func( err error, r *HttpRequest,w HttpResponse)
@@ -26,7 +26,7 @@ func NewApp() *App {
 	return &App{
 		handlers: make(map[string]func(r *HttpRequest,w HttpResponse)error),
 		patterns:make([]string,0),
-		methods:make(map[string]string),
+		methods:make(map[string]map[string]string),
 		regexps:make(map[string]*regexp.Regexp),
 		pathparamanmes:make(map[string][]string),
 		errHandler: func(err error, r *HttpRequest, w HttpResponse) {
@@ -37,7 +37,13 @@ func NewApp() *App {
 
 func(a *App) handle(method string,pattern string, handler func(r *HttpRequest,w HttpResponse) error){
 	a.handlers[pattern]=handler
-	a.methods[pattern]=method
+	if c, exist := a.methods[pattern]; exist {
+		c[method] = method
+	} else {
+		c := make(map[string]string)
+		c[method] = method
+		a.methods[pattern] = c
+	}
 	a.regexps[pattern],a.pathparamanmes[pattern]=convertPatterntoRegex(pattern)
 	for _,s:=range a.patterns{
 		if s==pattern{
@@ -100,7 +106,7 @@ func (h *hodler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 	}()
    for _,p:=range h.app.patterns{
        if reg,ok:= h.app.regexps[p];ok{
-		   if method,ok:=h.app.methods[p];ok&&r.Method==method{
+		   if method,ok:=h.app.methods[p];ok&&r.Method==method[r.Method]{
 			   if reg.Match([]byte(r.URL.Path)) {
 				   matchers:=reg.FindSubmatch([]byte(r.URL.Path))
 				   pathParamMap:=make(map[string]string)
